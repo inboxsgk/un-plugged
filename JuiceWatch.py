@@ -13,6 +13,7 @@ from PIL import Image, ImageDraw
 import threading
 import logging
 
+
 #  logging
 logging.basicConfig(filename='JuiceWatch.log', level=logging.DEBUG)
 
@@ -120,19 +121,57 @@ def schedule_updates(func, interval):
 charger_connected_prev = None
 
 
+#NOTIFICATION START
+
+import platform
+
 def show_notification(message):
+    if platform.system() == 'Windows':
+        show_windows_notification(message)
+    elif platform.system() in ['Darwin', 'Linux']:
+        show_mac_linux_notification(message)
+    else:
+        print("Unsupported operating system")
+
+def show_windows_notification(message):
+     from win10toast import ToastNotifier
+    
      toaster = ToastNotifier()
-     icon_path = 'icon.ico'  #  the path to your .ico file
+     icon_path = 'icon.ico' 
      if getattr(sys, 'frozen', False):  # Check if running as a PyInstaller executable
             icon_path = os.path.join(sys._MEIPASS, "icon.ico")
 
     # Check if the icon file exists
      if not os.path.exists(icon_path):
+    
+        logging.info(f"Error: Icon file '{icon_path}' not found.")
+        return
+
+     toaster.show_toast("JuiceWatch 🩺🍂", message, duration=3, icon_path=icon_path)
+
+
+def show_mac_linux_notification(message):
+    import notifypy
+    
+    notification = notifypy.Notify()
+    icon_path = 'icon.ico'  #  the path to your .ico file
+    notification_audio = "notification-ring-2344.wav"
+    if getattr(sys, 'frozen', False):  # Check if running as a PyInstaller executable
+        icon_path = os.path.join(sys._MEIPASS, "icon.ico")
+
+    # Check if the icon file exists
+    if not os.path.exists(icon_path):
         # If the file doesn't exist, provide a default icon or handle the error accordingly
         logging.info(f"Error: Icon file '{icon_path}' not found.")
         return
 
-     toaster.show_toast("JuiceWatch 🩺🍂", message ,duration=3, icon_path=icon_path)
+    notification.title = "JuiceWatch 🩺🍂"
+    notification.message = message
+    notification.icon = icon_path
+    notification.audio = notification_audio
+    notification.send(block=False)
+
+
 
 
 def check_battery_and_update_gui():
@@ -163,13 +202,13 @@ def handle_unplugged_scenario(percent, power_plugged):
 
         percent, power_plugged = check_battery_status()
         if power_plugged:
-            show_notification("Charger reconnected. Resetting shutdown timer.")
+            show_notification("Charger reconnected. Resetting hibernate timer.")
             elapsed_time = 0
 
     if not power_plugged and elapsed_time >= turn_off_delay:
-        shutdown_with_confirmation()
+        hibernate_with_confirmation()
         logging.info("Laptop would be turned off now.")
-        show_notification("Shutdown canceled.")
+        show_notification("hibernate canceled.")
         elapsed_time = 0
 
 
@@ -191,14 +230,44 @@ def check_battery_status():
         return 0, None
 
 
-def shutdown_with_confirmation():
+def hibernate_with_confirmation():
     show_notification(
-        "Laptop will shut down in 1 minute. Click here to Cancel.")
-    cancel_shutdown = messagebox.askyesno(
-        "Cancel Shutdown", "Do you want to cancel the shutdown?")
+        "Laptop will hibernate in 1 minute. Click here to Cancel.")
+    cancel_hibernate = messagebox.askyesno(
+        "Cancel hibernate", "Do you want to cancel the hibernate?")
 
-    if not cancel_shutdown:
-        os.system("shutdown /s /t 60")
+    if cancel_hibernate:
+        cancel_hibernate_command()
+
+    else:
+        hibernate_system()
+
+# check platform user is currently on
+
+def cancel_hibernate_command():
+    platform = sys.platform
+
+    if platform.startswith('win'):
+        os.system("shutdown /a")
+    elif platform.startswith('linux'):
+        os.system("sudo systemctl stop sleep.target")
+    elif platform.startswith('darwin'):
+        os.system("sudo pmset -c sleep 0")
+        os.system("sudo pmset -a hibernatemode 0")
+
+
+def hibernate_system():
+    platform = sys.platform
+
+    if platform.startswith('win'):
+        os.system("shutdown /h")
+    elif platform.startswith('linux'):
+        os.system("systemctl hibernate")
+    elif platform.startswith('darwin'):
+        os.system("pmset -a hibernatemode 25 && pmset -a standby 1 && hibernate -h now")
+
+
+
 
 
 def update_settings():
@@ -250,11 +319,11 @@ def open_settings_window():
     if os.path.exists(icon_path):
         settings_window.iconbitmap(icon_path)
 
-    # Create a notebook to hold the tabs
+    # notebook to hold the tabs
     notebook = ttk.Notebook(settings_window)
     notebook.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-    # Create the first tab for settings
+    # first tab for settings
     settings_tab = ttk.Frame(notebook)
     notebook.add(settings_tab, text="Settings")
 
@@ -294,32 +363,35 @@ def open_settings_window():
     button_frame.grid(row=3, column=0, sticky="ew")
 
     update_button = ttk.Button(button_frame, text="Update Settings", command=update_settings)
-    update_button.grid(row=0, column=0, padx=5)
+    update_button.grid(row=0, column=0, padx=15)
 
-    shutdown_button = ttk.Button(button_frame, text="Shutdown", command=shutdown_with_confirmation)
-    shutdown_button.grid(row=0, column=1, padx=5)
+    hibernate_button = ttk.Button(button_frame, text="Hibernate", command=hibernate_with_confirmation)
+    hibernate_button.grid(row=0, column=1, padx=10)
+
+    close_button = ttk.Button(button_frame, text="Close program", command=lambda: exit_program(menu_icon, root))
+    close_button.grid(row=0, column=2, padx=15)
 
     # Display current settings values
     display_current_settings_values()
 
-    # Create the second tab for program information
+    #  second tab for program information
     about_tab = ttk.Frame(notebook)
     notebook.add(about_tab, text="About Program")
 
 
     about_label = ttk.Label(
-     about_tab, text="JuiceWatch\nVersion 1.0\n© 2024 Trakexcel Agency-@Uzitrake")
+     about_tab, text="JuiceWatch\nVersion 1.0\n© 2024 Trakexcel Agency\n@Uzitrake | inboxsgk")
     about_label.pack(padx=20, pady=14)
 
     explanation_text = (
     "JuiceWatch is a battery monitoring program designed to provide real-time insights\n"
     "into your laptop's battery status. Here's how you can use JuiceWatch:\n\n"
     "Usage:\n"
-    "1. Launch JuiceWatch and configure your notification settings.\n"
+    "1. Launch JuiceWatch .You can start it from system tray 👨‍💻\n"
     "2. The program will continuously monitor your laptop's battery status.\n"
     "3. Receive notifications for charger connection and disconnection events.\n"
     "4. Customize notification intervals and turn-off delays to suit your preferences.\n"
-    "5. Optionally, manually initiate a shutdown using the 'Shutdown' button.\n\n"
+    "5. Optionally, manually initiate a hibernate using the 'hibernate' button.\n\n"
     "JuiceWatch helps you conserve battery life by taking proactive actions when your\n"
     "laptop is not connected to the charger. Stay informed and in control of your power usage!"
     )
@@ -334,8 +406,7 @@ def open_settings_window():
     settings_window.protocol("WM_DELETE_WINDOW", lambda: on_settings_window_close(settings_window))
 
 
-# def show_about_tab():
-#     notebook.select(about_tab)
+
 
 def display_current_settings_values():
     # Get the current values from the entry fields
@@ -383,7 +454,15 @@ def on_exit(icon, item):
     icon.stop()
 
 
-def exit_program(icon, item):
+def on_minimize(root, icon, event):
+    root.iconify()  # Minimize the window
+    root.withdraw()  # Hide the window from the taskbar
+    icon.visible = True  # Make the system tray icon visible
+
+
+
+
+def exit_smooth(icon, item):
     response = messagebox.askyesno(
         "Exit Program", "Are you sure you want to exit?")
     if response:
@@ -391,6 +470,50 @@ def exit_program(icon, item):
         release_lock()
         root.destroy()
         os._exit(0)
+
+
+from PIL import ImageTk
+
+def exit_program(icon, root):
+    #custom messagebox
+    messagebox_window = tk.Toplevel(root)
+    messagebox_window.title("Exit Program")
+
+    icon_filename = "icon.png"
+
+    # Check if running as a PyInstaller executable or using a compiled package
+    if getattr(sys, 'frozen', False):
+
+    # If frozen, get the path to the resource using the MEIPASS attribute
+          icon_path = os.path.join(sys._MEIPASS, icon_filename)
+    else:
+    # If running the Python script directly, assume the icon is in the same directory
+    
+        icon_path = icon_filename
+
+    logo_image = Image.open(icon_path)
+    logo_image = logo_image.resize((60, 60), Image.BILINEAR)  
+
+    logo_photo = ImageTk.PhotoImage(logo_image)
+    logo_label = ttk.Label(messagebox_window, image=logo_photo)
+    logo_label.image = logo_photo  # Keep a reference to prevent garbage collection
+    logo_label.pack(pady=10)
+
+    # Add the message and Yes/No buttons
+    message_label = ttk.Label(messagebox_window, text="Are you sure you want to exit?")
+    message_label.pack(pady=5)
+    
+    yes_button = ttk.Button(messagebox_window, text="Yes", command=lambda: handle_exit(icon, root))
+    yes_button.pack(side="left", padx=10)
+    
+    no_button = ttk.Button(messagebox_window, text="No", command=messagebox_window.destroy)
+    no_button.pack(side="right", padx=10)
+
+def handle_exit(icon, root):
+    icon.stop()
+    release_lock()
+    root.destroy()
+    os._exit(0)
 
 
 def show_notification_thread(message):
@@ -448,6 +571,8 @@ if __name__ == "__main__":
 
     root = Tk()
     root.withdraw()
+    root.resizable(False, False)  # Disable resizing in both x and y directions
+
 
     initialize_icons()
 
@@ -455,9 +580,10 @@ if __name__ == "__main__":
         item('Settings', lambda icon, item: (
             opening_settings(), open_settings_window())),
         item('Mini info', lambda icon, item: show_notification_thread(
-            "This Program helps check when laptop charger disconnected🙄, if the user doesn't connect, it shuts down the laptop to save the user's battery.")),
+            "This Program helps check when laptop charger disconnected🪫🩺, if the user doesn't connect, it shuts down the laptop to save the user's battery.")),
         item('Program Info', lambda icon, item: (opening_about(), open_settings_window())),
-        item('Exit Program', lambda icon, item: exit_program(menu_icon, item)),
+        item('Exit Program', lambda icon, item: exit_smooth(menu_icon, item)),
+    
     ]
 
 
@@ -476,6 +602,9 @@ if __name__ == "__main__":
     root.protocol("WM_DELETE_WINDOW",
                   lambda: minimize_to_tray(root, menu_icon))
 
+    root.bind("<Unmap>", lambda event: on_minimize(root, menu_icon, event))
+
+
     atexit.register(release_lock_at_exit)
 
     # thread to update the lock timestamp every 10 minutes
@@ -489,3 +618,4 @@ if __name__ == "__main__":
 
     release_lock()
 
+## The start

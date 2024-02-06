@@ -1,50 +1,92 @@
-<p align="center">
- <h1 align="center">Project Un-plugged</h1>
- <p align="center"><i>Get instant alerts when charger is disconnected — Best tool for laptops with almost Dead Battery</i></p>
-</p>
-<br>
+# JuiceWatch 🩺🍂
 
-## What’s the problem?
+![JuiceWatch Logo](https://i.postimg.cc/Y07vvmBn/icon.png)
 
-Laptop batteries wear out in time. Their charge doesn’t last more than a few minutes when unplugged. This crashes the system, breaking your workflow. It’s frustrating when your laptop suddenly force shuts down when you were working and didn't notice the charger is unplugged/switched off/or there's powercut in your home.
+JuiceWatch is a battery monitoring application designed to provide real-time insights into your laptop's battery status charging Status. It helps you conserve battery life by taking proactive actions when your laptop is not connected to the charger. Stay informed and in control of your power usage!
 
-<br>
+#### Very useful for Laptops with almost dead batteries.(Very)
 
-## What does this project do?
+## Features
 
-This program notifies you whenever there is no external power supply to the system (irrespective of the battery level). Sends a notification till the power source is restored.
+- Continuous monitoring of laptop battery status
+- Notifications for charger connection and disconnection events
+- Customizable notification intervals and turn-off delays
+- Manual initiation of shutdown using the 'Shutdown' button
 
-<br>
+## Table of Contents
 
-## How to Install
+- [Installation](#installation)
+- [Usage](#usage)
+- [Settings](#settings)
+- [Program Information](#program-information)
+- [License](#license)
+- [Contribution Guidelines](#contribution-guidelines)
+- [Changelog](#changelog)
 
-To run this project, you need to install the required dependencies. Follow these steps:
+## Installation
 
-1. **Clone the repository:**
+### Requirements
+
+- Windows Operating System
+- Python 3.x installed
+- [Inno Setup](https://www.jrsoftware.org/isinfo.php) for creating the installer (optional)
+
+1. Clone the repository:
+
    ```bash
-   git clone https://github.com/inboxsgk/un-plugged.git
-   cd un-plugged
-   ```
-2. Use
-
-```bash
-pip install -r requirements.txt
-
-```
-
-3. ```bash
-    python main_program.pyw
+   git clone https://github.com/vickkie/JuiceWatch.git
 
    ```
 
-## Your Contributions
 
-All your contributions are welcome, whether it's a upgrade or fixing of bugs or anything. You can always contribute :)
+2. Navigate to the project directory:
 
-<br>
+bash
+cd JuiceWatch
+Install Python dependencies:
 
-### Note: This project was meant to run in the background so I've saved the source file as .pyw instead of .py
+bash
+-pip install -r requirements.txt
+-Run JuiceWatch:
 
-This project was built with [notify-py](https://github.com/ms7m/notify-py)
+bash
 
-![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Finboxsgk%2Fun-plugged%2F&label=Views&countColor=%23263759)
+python JuiceWatch.py
+
+### Usage
+
+-Configure your notification settings in the 'Settings' tab.
+-The program will continuously monitor your laptop's battery status.
+-Receive notifications for charger connection and disconnection events.
+-Customize notification intervals and turn-off delays to suit your preferences.
+-Optionally, manually initiate a shutdown using the 'Shutdown' button.
+
+### Settings
+
+-Open the 'Settings' tab to configure notification intervals and turn-off delays.
+-Click the 'Update Settings' button to apply changes.
+
+### Program Information
+
+-Open the 'Program Info' tab for additional information about JuiceWatch.
+-Learn more about how JuiceWatch helps you conserve battery life.
+
+### License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+### Contribution Guidelines
+
+Feel free to contribute to this project. Read the Contribution Guidelines for more information.
+
+### Changelog
+
+Check the Changelog for information about the latest updates.
+
+free for modification and fair use
+
+## Visual Update
+
+![juiceWatch](https://github.com/vickkie/Uzi-Battery-monitor/assets/43224578/5bf48854-6d6b-463d-8fc4-d9cb96150e6b)
+
+

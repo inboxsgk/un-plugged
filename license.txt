@@ -1,0 +1,22 @@
+JuiceWatch End-User License Agreement (EULA)
+
+By installing and using JuiceWatch("the software"), you agree to the following terms and conditions:
+
+1. Usage: You are not granted a non-exclusive and non-transferable license to use the software for personal or commercial purposes.
+
+2. Distribution: You may not redistribute, sublicense, or sell copies of the software
+
+3. Modifications: You may not modify, reverse engineer, decompile, or disassemble the software.
+
+4. Support: The software is provided "as is" without any warranty or support. Trakexcel Studio is not liable for any damages resulting from the use of the software.
+
+5. Updates: Trakexcel Studio may provide updates to the software at its discretion. You are encouraged to check for updates regularly.
+
+6. Termination: This license is effective until terminated. Trakexcel Studio reserves the right to terminate the license at any time if you fail to comply with these terms.
+
+7. By installing the software, you acknowledge that you have read and understood this agreement and agree to be bound by its terms and conditions.
+
+© 2024 Trakexcel Studio. All rights reserved.
+Author: Uzitrake 
+Author: inboxsgk
+
